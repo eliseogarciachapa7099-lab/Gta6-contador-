@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GTA VI · Cuenta regresiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #1b0b3a;
+    --dusk: #5a1a6e;
+    --pink: #ff3d8b;
+    --orange: #ff8a3d;
+    --sun: #ffd166;
+    --ink: #fff4ea;
+    --muted: #d9b8e6;
+    --display: "Anton", Impact, "Arial Narrow Bold", sans-serif;
+    --body: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--night) 0%, var(--dusk) 38%, var(--pink) 72%, var(--orange) 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  /* Sol con franjas, anclado al horizonte */
+  .sun {
+    position: fixed;
+    left: 50%;
+    bottom: -18vmin;
+    width: min(80vmin, 640px);
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: linear-gradient(180deg, var(--sun) 0%, var(--orange) 55%, var(--pink) 100%);
+    -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 20px);
+            mask-image: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 20px);
+    opacity: .9;
+    z-index: 0;
+    animation: breathe 6s ease-in-out infinite;
+  }
+  @keyframes breathe { 50% { transform: translateX(-50%) translateY(-6px); } }
+
+  main {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6vh 5vw 10vh;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(4rem, 17vw, 10rem);
+    line-height: .9;
+    letter-spacing: .02em;
+    text-shadow: 0 4px 0 rgba(27, 11, 58, .55);
+  }
+  .tag {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .days {
+    margin-top: 5vh;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .days .num {
+    font-family: var(--display);
+    font-size: clamp(5rem, 24vw, 14rem);
+    line-height: .95;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 6px 0 rgba(27, 11, 58, .55);
+  }
+  .days .unit {
+    font-size: clamp(1.2rem, 3.5vw, 2rem);
+    font-weight: 600;
+  }
+
+  .clock {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 2vh;
+    max-width: 720px;
+  }
+  .cell {
+    background: rgba(27, 11, 58, .55);
+    border: 1px solid rgba(255, 244, 234, .18);
+    border-radius: 6px;
+    padding: 14px 12px 12px;
+  }
+  .cell b {
+    display: block;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(2rem, 7vw, 3.4rem);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .cell span { font-size: .85rem; color: var(--muted); }
+  .cell.ms b { color: var(--sun); }
+
+  .progress { margin-top: 4vh; max-width: 720px; }
+  .bar {
+    height: 10px;
+    border-radius: 5px;
+    background: rgba(27, 11, 58, .55);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--sun), var(--orange), var(--pink));
+  }
+  .progress p { margin-top: 8px; font-size: .9rem; color: var(--ink); }
+
+  .meta {
+    margin-top: 4vh;
+    max-width: 720px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+    align-items: end;
+    font-size: .95rem;
+  }
+  .meta label { display: block; color: var(--muted); margin-bottom: 4px; }
+  input[type="datetime-local"] {
+    font: inherit;
+    color: var(--ink);
+    background: rgba(27, 11, 58, .55);
+    border: 1px solid rgba(255, 244, 234, .3);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color-scheme: dark;
+  }
+  button {
+    font: inherit;
+    font-weight: 600;
+    color: var(--night);
+    background: var(--sun);
+    border: 0;
+    border-radius: 6px;
+    padding: 9px 14px;
+    cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid rgba(255, 244, 234, .4); }
+  button:hover { filter: brightness(1.08); }
+  :focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+  .done main h1 { color: var(--sun); }
+
+  @media (max-width: 560px) {
+    .clock { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sun { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sun" aria-hidden="true"></div>
+
+<main>
+  <h1>GTA VI</h1>
+  <p class="tag" id="tag">Vice City te espera. Faltan:</p>
+
+  <div class="days" role="timer" aria-label="Días restantes">
+    <span class="num" id="d">000</span>
+    <span class="unit">días</span>
+  </div>
+
+  <div class="clock">
+    <div class="cell"><b id="h">00</b><span>horas</span></div>
+    <div class="cell"><b id="m">00</b><span>minutos</span></div>
+    <div class="cell"><b id="s">00</b><span>segundos</span></div>
+    <div class="cell ms"><b id="ms">000</b><span>milisegundos</span></div>
+  </div>
+
+  <div class="progress">
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Espera completada" id="bar"><i id="fill"></i></div>
+    <p id="pct">Espera completada desde el primer tráiler (5 dic 2023): 0%</p>
+  </div>
+
+  <div class="meta">
+    <div>
+      <label for="target">Fecha y hora de lanzamiento (tu zona horaria)</label>
+      <input type="datetime-local" id="target" step="60">
+    </div>
+    <button type="button" id="reset" class="ghost">Restablecer 19 nov 2026</button>
+    <button type="button" id="copy">Copiar tiempo restante</button>
+    <div id="notifBox">
+      <label for="notifTime">Hora del aviso diario</label>
+      <input type="time" id="notifTime" style="font:inherit;color:var(--ink);background:rgba(27,11,58,.55);border:1px solid rgba(255,244,234,.3);border-radius:6px;padding:8px 10px;color-scheme:dark">
+      <button type="button" id="notifBtn" style="margin-left:8px">Activar avisos diarios</button>
+      <p id="notifStatus" style="margin-top:6px;font-size:.85rem;color:var(--muted)"></p>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var DEFAULT_TARGET = "2026-11-19T00:00";   // lanzamiento oficial, 00:00 hora local
+  var START = new Date("2023-12-05T00:00:00").getTime(); // primer tráiler
+  var KEY = "gta6-target";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var el = { d: $("d"), h: $("h"), m: $("m"), s: $("s"), ms: $("ms"),
+             fill: $("fill"), pct: $("pct"), bar: $("bar"), input: $("target"), tag: $("tag") };
+
+  function load() {
+    try { return localStorage.getItem(KEY) || DEFAULT_TARGET; } catch (e) { return DEFAULT_TARGET; }
+  }
+  function save(v) {
+    try { localStorage.setItem(KEY, v); } catch (e) {}
+  }
+
+  var target = new Date(load()).getTime();
+  if (isNaN(target)) target = new Date(DEFAULT_TARGET).getTime();
+  el.input.value = new Date(target - new Date(target).getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+  el.input.addEventListener("change", function () {
+    var t = new Date(el.input.value).getTime();
+    if (!isNaN(t)) { target = t; save(el.input.value); }
+  });
+  $("reset").addEventListener("click", function () {
+    target = new Date(DEFAULT_TARGET).getTime();
+    el.input.value = DEFAULT_TARGET;
+    save(DEFAULT_TARGET);
+  });
+
+  var lastText = "";
+  $("copy").addEventListener("click", function (e) {
+    var btn = e.currentTarget, old = btn.textContent;
+    function ok() { btn.textContent = "¡Copiado!"; setTimeout(function () { btn.textContent = old; }, 1500); }
+    if (navigator.clipboard) navigator.clipboard.writeText(lastText).then(ok, function () {});
+  });
+
+  var pad = function (n, l) { return String(n).padStart(l, "0"); };
+  var lastSecond = -1;
+
+  function tick() {
+    var dist = target - Date.now();
+
+    if (dist <= 0) {
+      document.body.classList.add("done");
+      el.d.textContent = "000"; el.h.textContent = "00"; el.m.textContent = "00";
+      el.s.textContent = "00"; el.ms.textContent = "000";
+      el.tag.textContent = "¡Ya está disponible! Bienvenido a Leonida.";
+      el.fill.style.width = "100%";
+      el.pct.textContent = "Espera completada: 100%";
+      el.bar.setAttribute("aria-valuenow", "100");
+      document.title = "GTA VI · ¡Ya salió!";
+      lastText = "GTA VI ya está disponible";
+      return; // detiene el bucle
+    }
+
+    var days = Math.floor(dist / 86400000);
+    var hours = Math.floor(dist % 86400000 / 3600000);
+    var mins = Math.floor(dist % 3600000 / 60000);
+    var secs = Math.floor(dist % 60000 / 1000);
+
+    el.ms.textContent = pad(Math.floor(dist % 1000), 3);
+
+    // Lo demás solo cambia una vez por segundo
+    if (secs !== lastSecond) {
+      lastSecond = secs;
+      el.d.textContent = pad(days, 3);
+      el.h.textContent = pad(hours, 2);
+      el.m.textContent = pad(mins, 2);
+      el.s.textContent = pad(secs, 2);
+
+      var p = Math.min(100, Math.max(0, (Date.now() - START) / (target - START) * 100));
+      el.fill.style.width = p.toFixed(2) + "%";
+      el.pct.textContent = "Espera completada desde el primer tráiler (5 dic 2023): " + p.toFixed(1) + "%";
+      el.bar.setAttribute("aria-valuenow", Math.round(p));
+
+      lastText = "Faltan " + days + " días, " + hours + " h, " + mins + " min y " + secs + " s para GTA VI";
+      document.title = days + "d " + pad(hours, 2) + ":" + pad(mins, 2) + ":" + pad(secs, 2) + " · GTA VI";
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Si cambias la fecha después de terminar, reinicia el bucle
+  el.input.addEventListener("change", function () {
+    document.body.classList.remove("done");
+    el.tag.textContent = "Vice City te espera. Faltan:";
+    lastSecond = -1;
+    requestAnimationFrame(tick);
+  });
+  $("reset").addEventListener("click", function () {
+    document.body.classList.remove("done");
+    el.tag.textContent = "Vice City te espera. Faltan:";
+    lastSecond = -1;
+    requestAnimationFrame(tick);
+  });
+
+  requestAnimationFrame(tick);
+})();
+</script>
+<script>
+(function () {
+  var LN = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
+  var box = document.getElementById("notifBox");
+  if (!LN) { box.style.display = "none"; return; }
+  var timeEl = document.getElementById("notifTime");
+  var st = document.getElementById("notifStatus");
+  function get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  timeEl.value = get("gta6-time", "09:00");
+
+  async function schedule() {
+    var perm = await LN.requestPermissions();
+    if (perm.display !== "granted") { st.textContent = "Permiso de notificaciones denegado."; return; }
+    var pend = await LN.getPending();
+    if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
+
+    var hm = timeEl.value.split(":");
+    var target = new Date(document.getElementById("target").value);
+    var end = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+    var now = new Date();
+    var d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var list = [], id = 1;
+    for (; d <= end; d.setDate(d.getDate() + 1)) {
+      var at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), +hm[0], +hm[1]);
+      if (at <= now) continue;
+      var left = Math.round((end - d) / 86400000);
+      var body = left === 0 ? "¡Hoy sale GTA VI!" : left === 1 ? "Mañana sale GTA VI" : "Faltan " + left + " días para GTA VI";
+      list.push({ id: id++, title: "GTA VI", body: body, schedule: { at: at, allowWhileIdle: true } });
+    }
+    if (!list.length) { st.textContent = "No hay días pendientes que programar."; return; }
+    await LN.schedule({ notifications: list });
+    set("gta6-notif", "1"); set("gta6-time", timeEl.value);
+    st.textContent = list.length + " avisos programados, uno diario a las " + timeEl.value + ".";
+  }
+
+  document.getElementById("notifBtn").addEventListener("click", function () {
+    schedule().catch(function (e) { st.textContent = "Error: " + e.message; });
+  });
+  if (get("gta6-notif", "") === "1") schedule().catch(function () {});
+})();
+</script>
+</body>
+</html>
